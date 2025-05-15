@@ -1,27 +1,74 @@
-# AiOemOnboarding
+# Amazon Bedrock Chatbot Integration
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.0.
+This project integrates Amazon Bedrock AI capabilities into an Angular application.
 
-## Development server
+## Setup Instructions (Windows)
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+### 1. Deploy the Lambda Function
 
-## Code scaffolding
+Navigate to the Lambda directory:
+```
+cd lambda\bedrock-chat
+```
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Run the deployment script:
+```
+.\deploy.ps1
+```
 
-## Build
+Or manually:
+```
+npm install
+powershell -Command "Compress-Archive -Path * -DestinationPath bedrock-chat.zip -Force"
+```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+Deploy to AWS Lambda:
+```
+aws lambda create-function --function-name bedrock-chat --runtime nodejs18.x --handler index.handler --zip-file fileb://bedrock-chat.zip --role arn:aws:iam::<ACCOUNT_ID>:role/lambda-bedrock-role
+```
 
-## Running unit tests
+### 2. Create API Gateway
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Create a REST API in API Gateway and integrate it with your Lambda function.
 
-## Running end-to-end tests
+### 3. Update Environment Configuration
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+Update the API URL in `src/environments/environment.ts` and `src/environments/environment.prod.ts`:
 
-## Further help
+```typescript
+export const environment = {
+  production: false, // or true for prod
+  apiUrl: 'https://your-api-gateway-url/stage'
+};
+```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+### 4. Run the Application
+
+Install dependencies:
+```
+npm install
+```
+
+Start the development server:
+```
+ng serve
+```
+
+## Required IAM Permissions
+
+The Lambda function needs the following permissions:
+- `bedrock:InvokeModel`
+
+Example IAM policy:
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "bedrock:InvokeModel",
+      "Resource": "*"
+    }
+  ]
+}
+```

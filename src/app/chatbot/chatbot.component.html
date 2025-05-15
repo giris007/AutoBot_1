@@ -1,0 +1,28 @@
+<div class="chat-container">
+  <div class="chat-header">
+    <h2>Automotive Dealer Information Chatbot</h2>
+  </div>
+  
+  <div class="chat-messages">
+    <div *ngFor="let message of messages" 
+         [ngClass]="{'message-user': message.role === 'user', 'message-assistant': message.role === 'assistant'}">
+      <div class="message-content">
+        <strong>{{ message.role === 'user' ? 'You' : 'AutoBot' }}:</strong>
+        <div [innerHTML]="message.content"></div>
+      </div>
+    </div>
+    
+    <div *ngIf="isLoading" class="loading-indicator">
+      <div class="dot-flashing"></div>
+    </div>
+  </div>
+  
+  <div class="chat-input">
+    <input type="text" 
+           [(ngModel)]="newMessage" 
+           placeholder="Ask about OEMs, dealers, regions, or contracts..." 
+           (keyup.enter)="sendMessage()"
+           [disabled]="isLoading">
+    <button (click)="sendMessage()" [disabled]="isLoading || !newMessage.trim()">Send</button>
+  </div>
+</div>
